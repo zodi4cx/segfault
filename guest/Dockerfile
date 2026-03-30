@@ -603,7 +603,10 @@ RUN pkg-install.sh    LARGE apt-get install -y --no-install-recommends \
 		python3-python-telegram-bot \
 		python3-wsgidav
 RUN pkg-install.sh LARGE bin 'https://gitlab.com/api/v4/projects/32089582/packages/generic/geonet-rs/0.4.4/geonet_0.4.4_%arch:x86_64=x86_64:DEFAULT=SKIP%.deb'    `# x86_64 only` \
-	&& pkg-install.sh MINI bash -c "{ [[ -f /usr/share/locale/locale.alias ]] && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8; }" \
+	# This command assumes the presence of the locale.alias file, which seems
+	# to have been removed in recent versions of the locales package
+	#&& pkg-install.sh MINI bash -c "{ [[ -f /usr/share/locale/locale.alias ]] && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8; }" \
+	&& pkg-install.sh MINI bash -c "{ echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && dpkg-reconfigure --frontend=noninteractive locales && update-locale LANG=en_US.UTF-8; }"
 	&& pkg-install.sh DEVEL bash -c '{ arch=amd64; [[ $HOSTTYPE == "aarch64" ]] && arch=arm64; apt-get install -y --no-install-recommends linux-headers-${arch}; }'
 ### After 0.4.3a release
 #RUN pkg-install.sh GAMES apt-get install -y --no-install-recommends \
